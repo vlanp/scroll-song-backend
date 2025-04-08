@@ -13,9 +13,9 @@ export const saveSongController = async (req, res) => {
             return saveSongUtils(audio);
         });
         const result = await Promise.all(savePromises);
-        const success = result.every((res) => res === true);
+        const success = result.filter((res) => res === true);
         res.status(201).json({
-            message: `${success} songs saved successfully over ${audios.length} files`,
+            message: `${success.length} songs saved successfully over ${audios.length} files`,
         });
     }
     catch (error) {

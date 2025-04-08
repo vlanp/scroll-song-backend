@@ -2,8 +2,14 @@ import { UploadedFile } from "express-fileupload";
 import { parseBuffer } from "music-metadata";
 import fs from "fs";
 import path from "path";
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const parseAudio = async (audio: UploadedFile) => {
+  // console.log(audio);
   const audioData = new Uint8Array(
     audio.data.buffer,
     audio.data.byteOffset,
@@ -15,9 +21,13 @@ const parseAudio = async (audio: UploadedFile) => {
     size: audio.size,
   });
 
+  // console.log(metadata);
+
   const title = metadata.common.title;
 
   const duration_s = metadata.format.duration;
+
+  console.log(duration_s);
 
   const startTime_s =
     duration_s && Math.floor(Math.random() * (duration_s - 30));
@@ -29,22 +39,25 @@ const parseAudio = async (audio: UploadedFile) => {
   let picture = metadata.common.picture?.shift();
 
   let pictureBuffer: Buffer;
+  let pictureMimeType: string;
 
   if (!picture) {
     const defaultPicturePath = path.join(
-      __dirname,
+      __dirname.replace("dist", "src"),
       "../assets/default-cover.jpg"
     );
     pictureBuffer = await fs.promises.readFile(defaultPicturePath);
+    pictureMimeType = "image/jpeg";
   } else {
     pictureBuffer = Buffer.from(picture.data);
+    pictureMimeType = picture.format;
   }
 
   // Convert the file to a base64 string
   const audioBase64 = `data:${audio.mimetype};base64,${audio.data.toString(
     "base64"
   )}`;
-  const pictureBase64 = `data:${picture.format};base64,${pictureBuffer.toString(
+  const pictureBase64 = `data:${pictureMimeType};base64,${pictureBuffer.toString(
     "base64"
   )}`;
 
