@@ -25,7 +25,7 @@ app.use(userRouter);
 app.use(discoverRouter);
 app.use(adminSongRouter);
 
-app.all("*", (req: Request, res: Response) => {
+app.all("*", (_req: Request, res: Response) => {
   res.status(404).json({ message: "Route not found" });
 });
 

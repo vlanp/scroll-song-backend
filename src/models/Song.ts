@@ -2,17 +2,29 @@ import mongoose from "mongoose";
 
 export interface ISong {
   title: string;
+  artist: string;
+  sourceUrl: string;
   genres: string[];
-  picture_url: string;
-  audio_url: string;
-  start_time_excerpt_ms: number;
-  end_time_excerpt_ms: number;
+  pictureUrl: string;
+  audioUrl: string;
+  startTimeExcerptMs: number;
+  endTimeExcerptMs: number;
   bytes: number;
-  duration_ms: number;
+  durationMs: number;
 }
 
 const songSchema = new mongoose.Schema<ISong>({
   title: {
+    type: String,
+    required: true,
+  },
+
+  artist: {
+    type: String,
+    required: true,
+  },
+
+  sourceUrl: {
     type: String,
     required: true,
   },
@@ -22,22 +34,22 @@ const songSchema = new mongoose.Schema<ISong>({
     default: [],
   },
 
-  picture_url: {
+  pictureUrl: {
     type: String,
     required: true,
   },
 
-  audio_url: {
+  audioUrl: {
     type: String,
     required: true,
   },
 
-  start_time_excerpt_ms: {
+  startTimeExcerptMs: {
     type: Number,
     required: true,
   },
 
-  end_time_excerpt_ms: {
+  endTimeExcerptMs: {
     type: Number,
     required: true,
   },
@@ -47,7 +59,7 @@ const songSchema = new mongoose.Schema<ISong>({
     required: true,
   },
 
-  duration_ms: {
+  durationMs: {
     type: Number,
     required: true,
   },

@@ -1,7 +1,11 @@
 export interface IDiscoverSong {
   id: string;
+  artist: string;
+  sourceUrl: string;
   title: string;
-  url: string;
-  start_time_excerpt_ms: number;
-  end_time_excerpt_ms: number;
+  pictureUrl: string;
+  genres: string[];
+  audioUrl: string;
+  startTimeExcerptMs: number;
+  endTimeExcerptMs: number;
 }

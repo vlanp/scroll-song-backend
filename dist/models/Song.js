@@ -4,23 +4,31 @@ const songSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
+    artist: {
+        type: String,
+        required: true,
+    },
+    sourceUrl: {
+        type: String,
+        required: true,
+    },
     genres: {
         type: [String],
         default: [],
     },
-    picture_url: {
+    pictureUrl: {
         type: String,
         required: true,
     },
-    audio_url: {
+    audioUrl: {
         type: String,
         required: true,
     },
-    start_time_excerpt_ms: {
+    startTimeExcerptMs: {
         type: Number,
         required: true,
     },
-    end_time_excerpt_ms: {
+    endTimeExcerptMs: {
         type: Number,
         required: true,
     },
@@ -28,7 +36,7 @@ const songSchema = new mongoose.Schema({
         type: Number,
         required: true,
     },
-    duration_ms: {
+    durationMs: {
         type: Number,
         required: true,
     },

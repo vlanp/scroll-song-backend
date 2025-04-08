@@ -1,11 +1,13 @@
 import { parseAudio } from "../../utils/audio.js";
 import { v2 as cloudinary } from "cloudinary";
 import Song from "../../models/Song.js";
-export const saveSongUtils = async (audio) => {
+import { parsePicture } from "../../utils/picture.js";
+export const saveSongUtils = async (audio, picture, sourceUrl) => {
     const audioFolder = "/songs/audio/";
     const pictureFolder = "/songs/picture/";
-    const { title, startTime_s, endTime_s, genres, audioBase64, pictureBase64 } = await parseAudio(audio);
-    if (!title || !startTime_s || !endTime_s || !genres) {
+    const { title, artist, startTimeSec, endTimeSec, genres, audioBase64 } = await parseAudio(audio);
+    const pictureBase64 = parsePicture(picture);
+    if (!title || !startTimeSec || !endTimeSec || !genres || !artist) {
         return false;
     }
     // Upload the file to cloudinary and retrieve the informations about the storage
@@ -21,14 +23,16 @@ export const saveSongUtils = async (audio) => {
     const uploads = await Promise.all([uploadAudioPromise, uploadPicturePromise]);
     // Create a new song containing the secure_url from cloudinary and save it
     const newSong = new Song({
-        audio_url: uploads[0].secure_url,
-        start_time_excerpt_ms: startTime_s * 1000,
-        end_time_excerpt_ms: endTime_s * 1000,
-        picture_url: uploads[1].secure_url,
+        audioUrl: uploads[0].secure_url,
+        sourceUrl: sourceUrl,
+        artist: artist,
+        startTimeExcerptMs: startTimeSec * 1000,
+        endTimeExcerptMs: endTimeSec * 1000,
+        pictureUrl: uploads[1].secure_url,
         genres: genres,
         title: title,
         bytes: uploads[0].bytes,
-        duration_ms: uploads[0].duration,
+        durationMs: uploads[0].duration,
     });
     await newSong.save();
     return true;

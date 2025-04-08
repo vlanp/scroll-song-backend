@@ -22,9 +22,13 @@ router.get("/discover", isAuthenticated, async (req, res) => {
             return {
                 id: song._id.toString(),
                 title: song.title,
-                url: song.audio_url,
-                start_time_excerpt_ms: song.start_time_excerpt_ms,
-                end_time_excerpt_ms: song.end_time_excerpt_ms,
+                artist: song.artist,
+                genres: song.genres,
+                sourceUrl: song.sourceUrl,
+                pictureUrl: song.pictureUrl,
+                audioUrl: song.audioUrl,
+                startTimeExcerptMs: song.startTimeExcerptMs,
+                endTimeExcerptMs: song.endTimeExcerptMs,
             };
         });
         res.status(200).json(response);

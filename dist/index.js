@@ -19,7 +19,7 @@ app.use(cors());
 app.use(userRouter);
 app.use(discoverRouter);
 app.use(adminSongRouter);
-app.all("*", (req, res) => {
+app.all("*", (_req, res) => {
     res.status(404).json({ message: "Route not found" });
 });
 app.listen(process.env.PORT, () => {

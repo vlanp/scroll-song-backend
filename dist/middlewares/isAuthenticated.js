@@ -5,11 +5,7 @@ export default async function isAuthenticated(req, res, next) {
         const user = await User.findOne({ authToken: token }).populate([
             "dislikedSongs",
             "likedSongs.song",
-            "votedSongs.song",
-            "artists",
-            "badges.badge",
         ]);
-        await user?.populate("likedSongs.song.artist", "votedSongs.song.artist");
         if (!user) {
             return res.status(401).json({ message: "Unauthorized" });
         }
