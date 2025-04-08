@@ -1,7 +1,7 @@
 import express from "express";
-import isAdmin from "../../middlewares/isAdmin";
+import isAdmin from "../../middlewares/isAdmin.js";
 import fileUpload from "express-fileupload";
-import { saveSongController } from "../../controllers/song.controllers";
+import { saveSongController } from "../../controllers/song.controllers.js";
 
 const router = express.Router();
 

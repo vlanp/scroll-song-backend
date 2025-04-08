@@ -5,8 +5,8 @@ import fileUpload from "express-fileupload";
 import { v4 as uuidv4 } from "uuid";
 import isAuthenticated, {
   AuthenticatedRequest,
-} from "../middlewares/isAuthenticated";
-import User, { IUser } from "../models/User";
+} from "../middlewares/isAuthenticated.js";
+import User, { IUser } from "../models/User.js";
 
 const router = express.Router();
 

@@ -1,4 +1,4 @@
-interface IDiscoverSong {
+export interface IDiscoverSong {
   id: string;
   title: string;
   url: string;

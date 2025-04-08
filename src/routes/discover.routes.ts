@@ -1,9 +1,11 @@
 // DISCOVER
 import express from "express";
-import isAuthenticated from "../middlewares/isAuthenticated";
-import { AuthenticatedRequest } from "../middlewares/isAuthenticated";
+import isAuthenticated, {
+  AuthenticatedRequest,
+} from "../middlewares/isAuthenticated.js";
 import { Response } from "express";
-import Song from "../models/Song";
+import Song from "../models/Song.js";
+import { IDiscoverSong } from "../interfaces/IDiscoverSong.js";
 
 const router = express.Router();
 

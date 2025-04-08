@@ -1,7 +1,7 @@
 import { UploadedFile } from "express-fileupload";
-import { parseAudio } from "../../utils/audio";
+import { parseAudio } from "../../utils/audio.js";
 import { v2 as cloudinary } from "cloudinary";
-import Song, { ISong } from "../../models/Song";
+import Song, { ISong } from "../../models/Song.js";
 
 export const saveSongUtils = async (audio: UploadedFile): Promise<Boolean> => {
   const audioFolder = "/songs/audio/";

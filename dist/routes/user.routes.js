@@ -1,36 +1,21 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-const bcrypt_1 = __importDefault(require("bcrypt"));
-const cloudinary_1 = require("cloudinary");
-const express_1 = __importDefault(require("express"));
-const express_fileupload_1 = __importDefault(require("express-fileupload"));
-const uuid_1 = require("uuid");
-const isAuthenticated_1 = __importDefault(require("../middlewares/isAuthenticated"));
-const User_1 = __importDefault(require("../models/User"));
-const router = express_1.default.Router();
-router.get("/user", isAuthenticated_1.default, (req, res) => {
-    var _a, _b, _c, _d, _e, _f;
+import bcrypt from "bcrypt";
+import { v2 as cloudinary } from "cloudinary";
+import express from "express";
+import fileUpload from "express-fileupload";
+import { v4 as uuidv4 } from "uuid";
+import isAuthenticated from "../middlewares/isAuthenticated.js";
+import User from "../models/User.js";
+const router = express.Router();
+router.get("/user", isAuthenticated, (req, res) => {
     try {
         //create an object without the password and the token
         const user = {
-            username: ((_a = req.user) === null || _a === void 0 ? void 0 : _a.username) || "",
-            email: ((_b = req.user) === null || _b === void 0 ? void 0 : _b.email) || "",
-            avatar: ((_c = req.user) === null || _c === void 0 ? void 0 : _c.avatar) || "",
-            genres: ((_d = req.user) === null || _d === void 0 ? void 0 : _d.unselectedGenres) || [],
-            dislikedSongs: ((_e = req.user) === null || _e === void 0 ? void 0 : _e.dislikedSongs) || [],
-            likedSongs: ((_f = req.user) === null || _f === void 0 ? void 0 : _f.likedSongs) || [],
+            username: req.user?.username || "",
+            email: req.user?.email || "",
+            avatar: req.user?.avatar || "",
+            genres: req.user?.unselectedGenres || [],
+            dislikedSongs: req.user?.dislikedSongs || [],
+            likedSongs: req.user?.likedSongs || [],
         };
         res.status(200).json(user);
     }
@@ -39,7 +24,7 @@ router.get("/user", isAuthenticated_1.default, (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
-router.post("/user/login", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+router.post("/user/login", async (req, res) => {
     try {
         // Retrieve email and password from the request body
         const { email, password } = req.body;
@@ -48,13 +33,13 @@ router.post("/user/login", (req, res) => __awaiter(void 0, void 0, void 0, funct
             return res.status(400).json({ message: "All fields are required" });
         }
         // Find the user in the database by email
-        const user = yield User_1.default.findOne({ email });
+        const user = await User.findOne({ email });
         // If the user is not found, return an error response
         if (!user) {
             return res.status(400).json({ message: "User not found" });
         }
         // Compare the provided password with the stored hashed password
-        const passwordMatch = yield bcrypt_1.default.compare(password, user.password);
+        const passwordMatch = await bcrypt.compare(password, user.password);
         // If the passwords do not match, return an error response
         if (!passwordMatch) {
             return res.status(400).json({ message: "Invalid password" });
@@ -66,8 +51,8 @@ router.post("/user/login", (req, res) => __awaiter(void 0, void 0, void 0, funct
         console.log(error); // Log the error to the console
         res.status(500).json({ message: "Internal server error" });
     }
-}));
-router.post("/user/signup", (0, express_fileupload_1.default)(), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+});
+router.post("/user/signup", fileUpload(), async (req, res) => {
     // Destructure email, username, password, and avatar from the request body
     const { email, username, password, } = req.body;
     try {
@@ -76,15 +61,15 @@ router.post("/user/signup", (0, express_fileupload_1.default)(), (req, res) => _
             return res.status(400).json({ message: "All fields are required" });
         }
         // Check if email already exists in the database
-        const user = yield User_1.default.findOne({ email });
+        const user = await User.findOne({ email });
         if (user) {
             // If user already exists, return an error response
             return res.status(400).json({ message: "User already exists" });
         }
         // Hash the password using bcrypt
-        const hashedPassword = yield bcrypt_1.default.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 10);
         // Generate a new authentication token
-        const authToken = (0, uuid_1.v4)();
+        const authToken = uuidv4();
         // Initialize avatar_url as an empty string
         let avatar_url = "";
         // If there are files in the request and the avatar is not an array
@@ -93,14 +78,14 @@ router.post("/user/signup", (0, express_fileupload_1.default)(), (req, res) => _
             // Convert the file to a base64 string
             const imageBase64 = `data:${file.mimetype};base64,${file.data.toString("base64")}`;
             // Upload the image to Cloudinary and get the secure URL
-            const result = yield cloudinary_1.v2.uploader.upload(imageBase64, {
+            const result = await cloudinary.uploader.upload(imageBase64, {
                 folder: "avatars",
             });
             avatar_url = result.secure_url;
         }
         const unselectedGenres = [];
         // Create a new user object with the provided, and generated data
-        const newUser = new User_1.default({
+        const newUser = new User({
             username,
             email,
             password: hashedPassword,
@@ -111,7 +96,7 @@ router.post("/user/signup", (0, express_fileupload_1.default)(), (req, res) => _
             likedSongs: [],
         });
         // Save the new user to the database
-        yield newUser.save();
+        await newUser.save();
         // Return a response with the new user's ID and authentication token
         res.status(200).json({ id: newUser._id, token: newUser.authToken });
     }
@@ -119,8 +104,8 @@ router.post("/user/signup", (0, express_fileupload_1.default)(), (req, res) => _
         console.log(error);
         res.status(500).json({ message: "Internal server error" });
     }
-}));
-router.put("/user/updateGenres", isAuthenticated_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+});
+router.put("/user/updateGenres", isAuthenticated, async (req, res) => {
     try {
         // Get the user from the request
         const user = req.user;
@@ -145,7 +130,7 @@ router.put("/user/updateGenres", isAuthenticated_1.default, (req, res) => __awai
         // Update the user's genres
         user.unselectedGenres = unselectedGenres;
         // Save the updated user
-        yield user.save();
+        await user.save();
         // Return a 200 status with a success message
         res.status(200).json({ message: "Genres updated successfully" });
     }
@@ -154,5 +139,5 @@ router.put("/user/updateGenres", isAuthenticated_1.default, (req, res) => __awai
         console.log(error);
         res.status(500).json({ message: "Internal server error" });
     }
-}));
-exports.default = router;
+});
+export default router;

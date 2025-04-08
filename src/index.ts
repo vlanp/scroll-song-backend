@@ -1,11 +1,13 @@
-require("dotenv").config();
+import dotenv from "dotenv";
 import { v2 as cloudinary } from "cloudinary";
 import cors from "cors";
 import express, { Request, Response } from "express";
 import mongoose from "mongoose";
-import adminSongRouter from "./routes/admin_routes/song.routes";
-import discoverRouter from "./routes/discover.routes";
-import userRouter from "./routes/user.routes";
+import adminSongRouter from "./routes/admin_routes/song.routes.js";
+import discoverRouter from "./routes/discover.routes.js";
+import userRouter from "./routes/user.routes.js";
+
+dotenv.config();
 
 const app = express();
 

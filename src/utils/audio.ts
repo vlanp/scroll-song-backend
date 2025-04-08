@@ -4,7 +4,13 @@ import fs from "fs";
 import path from "path";
 
 const parseAudio = async (audio: UploadedFile) => {
-  const metadata = await parseBuffer(audio.data, {
+  const audioData = new Uint8Array(
+    audio.data.buffer,
+    audio.data.byteOffset,
+    audio.data.byteLength
+  );
+
+  const metadata = await parseBuffer(audioData, {
     mimeType: audio.mimetype,
     size: audio.size,
   });
@@ -22,29 +28,25 @@ const parseAudio = async (audio: UploadedFile) => {
 
   let picture = metadata.common.picture?.shift();
 
+  let pictureBuffer: Buffer;
+
   if (!picture) {
     const defaultPicturePath = path.join(
       __dirname,
-      "../../assets/default-cover.jpg"
+      "../assets/default-cover.jpg"
     );
-    const defaultPicture = await fs.promises.readFile(defaultPicturePath);
-    picture = {
-      data: defaultPicture,
-      format: "image/jpeg",
-      description: "default cover",
-      name: "default-cover.jpg",
-    };
+    pictureBuffer = await fs.promises.readFile(defaultPicturePath);
+  } else {
+    pictureBuffer = Buffer.from(picture.data);
   }
-
-  const base64DataPicture = Buffer.isBuffer(picture.data)
-    ? picture.data.toString("base64")
-    : picture.data;
 
   // Convert the file to a base64 string
   const audioBase64 = `data:${audio.mimetype};base64,${audio.data.toString(
     "base64"
   )}`;
-  const pictureBase64 = `data:${picture.format};base64,${base64DataPicture}`;
+  const pictureBase64 = `data:${picture.format};base64,${pictureBuffer.toString(
+    "base64"
+  )}`;
 
   return {
     title,

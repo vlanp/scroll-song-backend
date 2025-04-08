@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { Document } from "mongoose";
-import User, { IUser } from "../models/User";
+import User, { IUser } from "../models/User.js";
 
 export interface AuthenticatedRequest extends Request {
   user?: Document<unknown, object, IUser> &

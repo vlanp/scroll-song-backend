@@ -1,24 +1,9 @@
-"use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.parseAudio = void 0;
-const music_metadata_1 = require("music-metadata");
-const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
-const parseAudio = (audio) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    const metadata = yield (0, music_metadata_1.parseBuffer)(audio.data, {
+import { parseBuffer } from "music-metadata";
+import fs from "fs";
+import path from "path";
+const parseAudio = async (audio) => {
+    const audioData = new Uint8Array(audio.data.buffer, audio.data.byteOffset, audio.data.byteLength);
+    const metadata = await parseBuffer(audioData, {
         mimeType: audio.mimetype,
         size: audio.size,
     });
@@ -27,23 +12,18 @@ const parseAudio = (audio) => __awaiter(void 0, void 0, void 0, function* () {
     const startTime_s = duration_s && Math.floor(Math.random() * (duration_s - 30));
     const endTime_s = startTime_s && startTime_s + 30;
     const genres = metadata.common.genre;
-    let picture = (_a = metadata.common.picture) === null || _a === void 0 ? void 0 : _a.shift();
+    let picture = metadata.common.picture?.shift();
+    let pictureBuffer;
     if (!picture) {
-        const defaultPicturePath = path_1.default.join(__dirname, "../../assets/default-cover.jpg");
-        const defaultPicture = yield fs_1.default.promises.readFile(defaultPicturePath);
-        picture = {
-            data: defaultPicture,
-            format: "image/jpeg",
-            description: "default cover",
-            name: "default-cover.jpg",
-        };
+        const defaultPicturePath = path.join(__dirname, "../assets/default-cover.jpg");
+        pictureBuffer = await fs.promises.readFile(defaultPicturePath);
     }
-    const base64DataPicture = Buffer.isBuffer(picture.data)
-        ? picture.data.toString("base64")
-        : picture.data;
+    else {
+        pictureBuffer = Buffer.from(picture.data);
+    }
     // Convert the file to a base64 string
     const audioBase64 = `data:${audio.mimetype};base64,${audio.data.toString("base64")}`;
-    const pictureBase64 = `data:${picture.format};base64,${base64DataPicture}`;
+    const pictureBase64 = `data:${picture.format};base64,${pictureBuffer.toString("base64")}`;
     return {
         title,
         startTime_s,
@@ -52,5 +32,5 @@ const parseAudio = (audio) => __awaiter(void 0, void 0, void 0, function* () {
         audioBase64,
         pictureBase64,
     };
-});
-exports.parseAudio = parseAudio;
+};
+export { parseAudio };
