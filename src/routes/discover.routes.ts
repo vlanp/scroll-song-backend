@@ -22,7 +22,7 @@ router.get(
       }
 
       const unselectedGenres = user.unselectedGenres;
-      const likedSongs = user.likedSongs;
+      const likedSongs = user.likedSongs.map((it) => it.song);
       const dislikedSongs = user.dislikedSongs;
 
       const songs = await Song.find({
