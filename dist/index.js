@@ -5,7 +5,9 @@ import express from "express";
 import mongoose from "mongoose";
 import adminSongRouter from "./routes/admin_routes/song.routes.js";
 import discoverRouter from "./routes/discover.routes.js";
+import genresRouter from "./routes/genres.routes.js";
 import userRouter from "./routes/user.routes.js";
+import "./utils/array.js";
 dotenv.config();
 const app = express();
 cloudinary.config({
@@ -18,6 +20,7 @@ app.use(express.json());
 app.use(cors());
 app.use(userRouter);
 app.use(discoverRouter);
+app.use(genresRouter);
 app.use(adminSongRouter);
 app.all("*", (_req, res) => {
     res.status(404).json({ message: "Route not found" });
