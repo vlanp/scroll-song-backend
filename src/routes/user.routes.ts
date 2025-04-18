@@ -46,7 +46,7 @@ router.post("/user/login", async (req: Request, res: Response) => {
 
     // If the user is not found, return an error response
     if (!user) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(404).json({ message: "Invalid email or password" });
     }
 
     // Compare the provided password with the stored hashed password
@@ -54,7 +54,7 @@ router.post("/user/login", async (req: Request, res: Response) => {
 
     // If the passwords do not match, return an error response
     if (!passwordMatch) {
-      return res.status(400).json({ message: "Invalid password" });
+      return res.status(404).json({ message: "Invalid email or password" });
     }
 
     // Return a response with the user's ID and the new token
