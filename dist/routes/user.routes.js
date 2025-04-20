@@ -64,7 +64,7 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
         const user = await User.findOne({ email });
         if (user) {
             // If user already exists, return an error response
-            return res.status(400).json({ message: "User already exists" });
+            return res.status(409).json({ message: "User already exists" });
         }
         // Hash the password using bcrypt
         const hashedPassword = await bcrypt.hash(password, 10);
