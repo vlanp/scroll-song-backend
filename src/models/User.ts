@@ -12,6 +12,11 @@ export interface IUser {
     song: mongoose.Types.ObjectId;
     createdAt: Date;
   }[];
+  verifString: string;
+  verifValidUntil: Date;
+  isActivated: boolean;
+  resetPWString?: string;
+  resetPWValidUntil?: Date;
 }
 
 const userSchema = new mongoose.Schema<IUser>({
@@ -29,6 +34,7 @@ const userSchema = new mongoose.Schema<IUser>({
   },
   avatar: {
     type: String,
+    required: false,
   },
   authToken: {
     type: String,
@@ -57,6 +63,26 @@ const userSchema = new mongoose.Schema<IUser>({
         },
       },
     ],
+  },
+  verifString: {
+    type: String,
+    required: true,
+  },
+  verifValidUntil: {
+    type: Date,
+    required: true,
+  },
+  isActivated: {
+    type: Boolean,
+    required: true,
+  },
+  resetPWString: {
+    type: String,
+    required: false,
+  },
+  resetPWValidUntil: {
+    type: Date,
+    required: false,
   },
 });
 

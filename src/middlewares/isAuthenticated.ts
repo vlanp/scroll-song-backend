@@ -3,7 +3,7 @@ import { Document } from "mongoose";
 import User, { IUser } from "../models/User.js";
 
 export interface AuthenticatedRequest extends Request {
-  user?: Document<unknown, object, IUser> &
+  user: Document<unknown, object, IUser> &
     IUser &
     Required<{
       _id: unknown;
@@ -11,7 +11,7 @@ export interface AuthenticatedRequest extends Request {
 }
 
 export default async function isAuthenticated(
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
@@ -26,7 +26,7 @@ export default async function isAuthenticated(
       return res.status(401).json({ message: "Unauthorized" });
     }
 
-    req.user = user;
+    (req as AuthenticatedRequest).user = user;
     next();
   } catch (error) {
     console.log(error);

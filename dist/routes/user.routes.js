@@ -5,6 +5,8 @@ import fileUpload from "express-fileupload";
 import { v4 as uuidv4 } from "uuid";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import User from "../models/User.js";
+import { sendEmail } from "../utils/email.js";
+import uid2 from "uid2";
 const router = express.Router();
 router.get("/user", isAuthenticated, (req, res) => {
     try {
@@ -84,6 +86,8 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
             avatar_url = result.secure_url;
         }
         const unselectedGenres = [];
+        const randomString = uid2(8);
+        await sendEmail(email, "Email verification - Scroll Song App", "Here is the code to enter in the application : \n" + randomString);
         // Create a new user object with the provided, and generated data
         const newUser = new User({
             username,
@@ -94,16 +98,114 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
             unselectedGenres: unselectedGenres,
             dislikedSongs: [],
             likedSongs: [],
+            verifString: randomString,
+            verifValidUntil: new Date(Date.now() + 60000),
+            isActivated: false,
         });
         // Save the new user to the database
         await newUser.save();
-        // Return a response with the new user's ID and authentication token
-        res.status(200).json({ id: newUser._id, token: newUser.authToken });
+        res.status(201).json({ email });
     }
     catch (error) {
         console.log(error);
         res.status(500).json({ message: "Internal server error" });
     }
+});
+router.get("/user/mailcheck/:randomString", async (req, res) => {
+    try {
+        const email = req.query.email;
+        if (!email || typeof email !== "string") {
+            return res.status(400).json({ message: "Email is missing" });
+        }
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            return res
+                .status(404)
+                .json({ message: "No User found with the provided email" });
+        }
+        if (user.isActivated) {
+            return res.status(400).json({ message: "Accound already activated" });
+        }
+        const randomString = req.params.randomString;
+        if (randomString !== user.verifString) {
+            return res.status(406).json({
+                message: "The verification string does not correspond to the provided email",
+            });
+        }
+        if (user.verifValidUntil < new Date()) {
+            return res.status(403).json({
+                message: "The verification string has expired",
+            });
+        }
+        user.isActivated = true;
+        await user.save();
+        res.status(200).json({ id: user._id, token: user.authToken, email });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+router.get("/user/askresetpw", async (req, res) => {
+    try {
+        const email = req.query.email;
+        if (!email || typeof email !== "string") {
+            return res.status(400).json({ message: "Email is missing" });
+        }
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            return res
+                .status(404)
+                .json({ message: "No User found with the provided email" });
+        }
+        const randomString = uid2(8);
+        await sendEmail(email, "Reset password - Scroll Song App", "Here is the code to enter in the application : \n" + randomString);
+        user.resetPWString = randomString;
+        user.resetPWValidUntil = new Date(Date.now() + 60000);
+        await user.save();
+        res.status(202).json({ email });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+router.get("/user/resetpw/:randomString", async (req, res) => {
+    try {
+        const email = req.query.email;
+        if (!email || typeof email !== "string") {
+            return res.status(400).json({ message: "Email is missing" });
+        }
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            return res
+                .status(404)
+                .json({ message: "No User found with the provided email" });
+        }
+        const randomString = req.params.randomString;
+        if (randomString !== user.resetPWString) {
+            return res.status(406).json({
+                message: "The verification string does not correspond to the provided email",
+            });
+        }
+        if (user.resetPWValidUntil < new Date()) {
+            return res.status(403).json({
+                message: "The verification string has expired",
+            });
+        }
+        user.isActivated = true;
+        await user.save();
+        res.status(202).json({ id: user._id, token: user.authToken, email });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
+router.post("/user/resetpw", isAuthenticated, (req, res) => {
+    try {
+    }
+    catch (error) { }
 });
 router.put("/user/updateGenres", isAuthenticated, async (req, res) => {
     try {
