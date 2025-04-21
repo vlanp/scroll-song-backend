@@ -12,10 +12,10 @@ export interface IUser {
     song: mongoose.Types.ObjectId;
     createdAt: Date;
   }[];
-  verifString: string;
+  verifCode: number;
   verifValidUntil: Date;
   isActivated: boolean;
-  resetPWString?: string;
+  resetPWCode?: number;
   resetPWValidUntil?: Date;
 }
 
@@ -64,8 +64,8 @@ const userSchema = new mongoose.Schema<IUser>({
       },
     ],
   },
-  verifString: {
-    type: String,
+  verifCode: {
+    type: Number,
     required: true,
   },
   verifValidUntil: {
@@ -76,8 +76,8 @@ const userSchema = new mongoose.Schema<IUser>({
     type: Boolean,
     required: true,
   },
-  resetPWString: {
-    type: String,
+  resetPWCode: {
+    type: Number,
     required: false,
   },
   resetPWValidUntil: {

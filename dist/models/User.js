@@ -41,8 +41,8 @@ const userSchema = new mongoose.Schema({
             },
         ],
     },
-    verifString: {
-        type: String,
+    verifCode: {
+        type: Number,
         required: true,
     },
     verifValidUntil: {
@@ -53,8 +53,8 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         required: true,
     },
-    resetPWString: {
-        type: String,
+    resetPWCode: {
+        type: Number,
         required: false,
     },
     resetPWValidUntil: {

@@ -23,7 +23,6 @@
     "mongoose": "^8.4.4",
     "music-metadata": "^11.0.5",
     "nodemailer": "^6.10.1",
-    "uid2": "^1.0.0",
     "uuid": "^10.0.0"
   },
   "devDependencies": {
@@ -33,7 +32,6 @@
     "@types/express-fileupload": "^1.5.0",
     "@types/node": "^20.14.9",
     "@types/nodemailer": "^6.4.17",
-    "@types/uid2": "^0.0.2",
     "@types/uuid": "^10.0.0",
     "tsc-alias": "^1.8.14",
     "typescript": "^5.5.2"

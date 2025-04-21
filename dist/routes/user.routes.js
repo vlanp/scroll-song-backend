@@ -6,8 +6,8 @@ import { v4 as uuidv4 } from "uuid";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import User from "../models/User.js";
 import { sendEmail } from "../utils/email.js";
-import uid2 from "uid2";
 import { passwordStrength } from "check-password-strength";
+import crypto from "crypto";
 const router = express.Router();
 router.get("/user", isAuthenticated, (req, res) => {
     try {
@@ -90,8 +90,8 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
             avatar_url = result.secure_url;
         }
         const unselectedGenres = [];
-        const randomString = uid2(8);
-        await sendEmail(email, "Email verification - Scroll Song App", "Here is the code to enter in the application : \n" + randomString);
+        const verifCode = crypto.randomInt(99999999);
+        await sendEmail(email, "Email verification - Scroll Song App", "Here is the code to enter in the application : \n" + verifCode);
         // Create a new user object with the provided, and generated data
         const newUser = new User({
             username,
@@ -102,7 +102,7 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
             unselectedGenres: unselectedGenres,
             dislikedSongs: [],
             likedSongs: [],
-            verifString: randomString,
+            verifCode: verifCode,
             verifValidUntil: new Date(Date.now() + 60000),
             isActivated: false,
         });
@@ -115,7 +115,7 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
-router.get("/user/mailcheck/:randomString", async (req, res) => {
+router.get("/user/mailcheck/:verifCode", async (req, res) => {
     try {
         const email = req.query.email;
         if (!email || typeof email !== "string") {
@@ -130,15 +130,15 @@ router.get("/user/mailcheck/:randomString", async (req, res) => {
         if (user.isActivated) {
             return res.status(400).json({ message: "Accound already activated" });
         }
-        const randomString = req.params.randomString;
-        if (randomString !== user.verifString) {
+        const verifCode = req.params.verifCode;
+        if (verifCode !== user.verifCode.toString()) {
             return res.status(406).json({
-                message: "The verification string does not correspond to the provided email",
+                message: "The verification code does not correspond to the provided email",
             });
         }
         if (user.verifValidUntil < new Date()) {
             return res.status(403).json({
-                message: "The verification string has expired",
+                message: "The verification code has expired",
             });
         }
         user.isActivated = true;
@@ -162,9 +162,9 @@ router.get("/user/askresetpw", async (req, res) => {
                 .status(404)
                 .json({ message: "No User found with the provided email" });
         }
-        const randomString = uid2(8);
-        await sendEmail(email, "Reset password - Scroll Song App", "Here is the code to enter in the application : \n" + randomString);
-        user.resetPWString = randomString;
+        const verifCode = crypto.randomInt(99999999);
+        await sendEmail(email, "Reset password - Scroll Song App", "Here is the code to enter in the application : \n" + verifCode);
+        user.resetPWCode = verifCode;
         user.resetPWValidUntil = new Date(Date.now() + 60000);
         await user.save();
         res.status(202).json({ email });
@@ -174,7 +174,7 @@ router.get("/user/askresetpw", async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
-router.get("/user/resetpw/:randomString", async (req, res) => {
+router.get("/user/resetpw/:verifCode", async (req, res) => {
     try {
         const email = req.query.email;
         if (!email || typeof email !== "string") {
@@ -186,15 +186,15 @@ router.get("/user/resetpw/:randomString", async (req, res) => {
                 .status(404)
                 .json({ message: "No User found with the provided email" });
         }
-        const randomString = req.params.randomString;
-        if (randomString !== user.resetPWString) {
+        const verifCode = req.params.verifCode;
+        if (verifCode !== user.resetPWCode.toString()) {
             return res.status(406).json({
-                message: "The verification string does not correspond to the provided email",
+                message: "The verification code does not correspond to the provided email",
             });
         }
         if (user.resetPWValidUntil < new Date()) {
             return res.status(403).json({
-                message: "The verification string has expired",
+                message: "The verification code has expired",
             });
         }
         user.isActivated = true;

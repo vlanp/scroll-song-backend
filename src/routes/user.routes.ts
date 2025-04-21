@@ -8,8 +8,8 @@ import isAuthenticated, {
 } from "../middlewares/isAuthenticated.js";
 import User, { IUser } from "../models/User.js";
 import { sendEmail } from "../utils/email.js";
-import uid2 from "uid2";
 import { passwordStrength } from "check-password-strength";
+import crypto from "crypto";
 
 const router = express.Router();
 
@@ -122,12 +122,12 @@ router.post(
 
       const unselectedGenres: string[] = [];
 
-      const randomString = uid2(8);
+      const verifCode = crypto.randomInt(99999999);
 
       await sendEmail(
         email,
         "Email verification - Scroll Song App",
-        "Here is the code to enter in the application : \n" + randomString
+        "Here is the code to enter in the application : \n" + verifCode
       );
 
       // Create a new user object with the provided, and generated data
@@ -140,7 +140,7 @@ router.post(
         unselectedGenres: unselectedGenres,
         dislikedSongs: [],
         likedSongs: [],
-        verifString: randomString,
+        verifCode: verifCode,
         verifValidUntil: new Date(Date.now() + 60000),
         isActivated: false,
       });
@@ -157,7 +157,7 @@ router.post(
 );
 
 router.get(
-  "/user/mailcheck/:randomString",
+  "/user/mailcheck/:verifCode",
   async (req: Request, res: Response) => {
     try {
       const email = req.query.email;
@@ -178,18 +178,18 @@ router.get(
         return res.status(400).json({ message: "Accound already activated" });
       }
 
-      const randomString = req.params.randomString;
+      const verifCode = req.params.verifCode;
 
-      if (randomString !== user.verifString) {
+      if (verifCode !== user.verifCode.toString()) {
         return res.status(406).json({
           message:
-            "The verification string does not correspond to the provided email",
+            "The verification code does not correspond to the provided email",
         });
       }
 
       if (user.verifValidUntil < new Date()) {
         return res.status(403).json({
-          message: "The verification string has expired",
+          message: "The verification code has expired",
         });
       }
 
@@ -221,15 +221,15 @@ router.get("/user/askresetpw", async (req: Request, res: Response) => {
         .json({ message: "No User found with the provided email" });
     }
 
-    const randomString = uid2(8);
+    const verifCode = crypto.randomInt(99999999);
 
     await sendEmail(
       email,
       "Reset password - Scroll Song App",
-      "Here is the code to enter in the application : \n" + randomString
+      "Here is the code to enter in the application : \n" + verifCode
     );
 
-    user.resetPWString = randomString;
+    user.resetPWCode = verifCode;
     user.resetPWValidUntil = new Date(Date.now() + 60000);
 
     await user.save();
@@ -241,50 +241,47 @@ router.get("/user/askresetpw", async (req: Request, res: Response) => {
   }
 });
 
-router.get(
-  "/user/resetpw/:randomString",
-  async (req: Request, res: Response) => {
-    try {
-      const email = req.query.email;
+router.get("/user/resetpw/:verifCode", async (req: Request, res: Response) => {
+  try {
+    const email = req.query.email;
 
-      if (!email || typeof email !== "string") {
-        return res.status(400).json({ message: "Email is missing" });
-      }
-
-      const user = await User.findOne({ email: email });
-
-      if (!user) {
-        return res
-          .status(404)
-          .json({ message: "No User found with the provided email" });
-      }
-
-      const randomString = req.params.randomString;
-
-      if (randomString !== user.resetPWString) {
-        return res.status(406).json({
-          message:
-            "The verification string does not correspond to the provided email",
-        });
-      }
-
-      if (user.resetPWValidUntil < new Date()) {
-        return res.status(403).json({
-          message: "The verification string has expired",
-        });
-      }
-
-      user.isActivated = true;
-
-      await user.save();
-
-      res.status(202).json({ id: user._id, token: user.authToken, email });
-    } catch (error) {
-      console.log(error);
-      res.status(500).json({ message: "Internal server error" });
+    if (!email || typeof email !== "string") {
+      return res.status(400).json({ message: "Email is missing" });
     }
+
+    const user = await User.findOne({ email: email });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ message: "No User found with the provided email" });
+    }
+
+    const verifCode = req.params.verifCode;
+
+    if (verifCode !== user.resetPWCode.toString()) {
+      return res.status(406).json({
+        message:
+          "The verification code does not correspond to the provided email",
+      });
+    }
+
+    if (user.resetPWValidUntil < new Date()) {
+      return res.status(403).json({
+        message: "The verification code has expired",
+      });
+    }
+
+    user.isActivated = true;
+
+    await user.save();
+
+    res.status(202).json({ id: user._id, token: user.authToken, email });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error" });
   }
-);
+});
 
 router.put(
   "/user/resetpw",
