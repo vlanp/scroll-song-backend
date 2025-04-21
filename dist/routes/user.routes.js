@@ -7,17 +7,18 @@ import isAuthenticated from "../middlewares/isAuthenticated.js";
 import User from "../models/User.js";
 import { sendEmail } from "../utils/email.js";
 import uid2 from "uid2";
+import { passwordStrength } from "check-password-strength";
 const router = express.Router();
 router.get("/user", isAuthenticated, (req, res) => {
     try {
         //create an object without the password and the token
         const user = {
-            username: req.user?.username || "",
-            email: req.user?.email || "",
-            avatar: req.user?.avatar || "",
-            genres: req.user?.unselectedGenres || [],
-            dislikedSongs: req.user?.dislikedSongs || [],
-            likedSongs: req.user?.likedSongs || [],
+            username: req.user.username,
+            email: req.user.email,
+            avatar: req.user.avatar,
+            genres: req.user.unselectedGenres,
+            dislikedSongs: req.user.dislikedSongs,
+            likedSongs: req.user.likedSongs,
         };
         res.status(200).json(user);
     }
@@ -67,6 +68,9 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
         if (user) {
             // If user already exists, return an error response
             return res.status(409).json({ message: "User already exists" });
+        }
+        if (passwordStrength(password).id !== 3) {
+            return res.status(406).json({ message: "Password must be strong" });
         }
         // Hash the password using bcrypt
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -202,10 +206,31 @@ router.get("/user/resetpw/:randomString", async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
-router.post("/user/resetpw", isAuthenticated, (req, res) => {
+router.put("/user/resetpw", isAuthenticated, async (req, res) => {
     try {
+        const newPassword = req.body.newPassword;
+        if (!newPassword) {
+            res.status(400).json({ message: "newPassword is missing" });
+        }
+        if (passwordStrength(newPassword).id !== 3) {
+            return res.status(406).json({ message: "NewPassword must be strong" });
+        }
+        // Hash the password using bcrypt
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+        // Generate a new authentication token
+        const authToken = uuidv4();
+        const user = req.user;
+        user.password = hashedPassword;
+        user.authToken = authToken;
+        await user.save();
+        res
+            .status(202)
+            .json({ id: user._id, token: user.authToken, email: user.email });
     }
-    catch (error) { }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
 });
 router.put("/user/updateGenres", isAuthenticated, async (req, res) => {
     try {
