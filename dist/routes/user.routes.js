@@ -51,6 +51,9 @@ router.post("/user/login", async (req, res) => {
             const verifCode = crypto.randomInt(99999999);
             await sendEmail(email, "Email verification - Scroll Song App", "Here is the code to enter in the application : \n" + verifCode);
             const verifValidUntil = new Date(Date.now() + 60000);
+            user.verifCode = verifCode;
+            user.verifValidUntil = verifValidUntil;
+            await user.save();
             return res.status(200).json({ email, validUntil: verifValidUntil });
         }
         // Return a response with the user's ID and the new token

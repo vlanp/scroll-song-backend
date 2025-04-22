@@ -71,6 +71,11 @@ router.post("/user/login", async (req: Request, res: Response) => {
 
       const verifValidUntil = new Date(Date.now() + 60000);
 
+      user.verifCode = verifCode;
+      user.verifValidUntil = verifValidUntil;
+
+      await user.save();
+
       return res.status(200).json({ email, validUntil: verifValidUntil });
     }
 
