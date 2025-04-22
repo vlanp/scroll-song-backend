@@ -160,6 +160,31 @@ router.get("/user/mailcheck/:verifCode", async (req, res) => {
         res.status(500).json({ message: "Internal server error" });
     }
 });
+router.get("/user/mailcheck", async (req, res) => {
+    try {
+        const email = req.query.email;
+        if (!email || typeof email !== "string") {
+            return res.status(400).json({ message: "Email is missing" });
+        }
+        const user = await User.findOne({ email: email });
+        if (!user) {
+            return res
+                .status(404)
+                .json({ message: "No User found with the provided email" });
+        }
+        const verifCode = crypto.randomInt(99999999);
+        await sendEmail(email, "Email verification - Scroll Song App", "Here is the code to enter in the application : \n" + verifCode);
+        user.verifCode = verifCode;
+        const verifValidUntil = new Date(Date.now() + 60000);
+        user.verifValidUntil = verifValidUntil;
+        await user.save();
+        res.status(202).json({ email, validUntil: verifValidUntil });
+    }
+    catch (error) {
+        console.log(error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+});
 router.get("/user/askresetpw", async (req, res) => {
     try {
         const email = req.query.email;
