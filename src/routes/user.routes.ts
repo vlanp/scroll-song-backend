@@ -130,6 +130,8 @@ router.post(
         "Here is the code to enter in the application : \n" + verifCode
       );
 
+      const verifValidUntil = new Date(Date.now() + 60000);
+
       // Create a new user object with the provided, and generated data
       const newUser = new User<IUser>({
         username,
@@ -141,14 +143,14 @@ router.post(
         dislikedSongs: [],
         likedSongs: [],
         verifCode: verifCode,
-        verifValidUntil: new Date(Date.now() + 60000),
+        verifValidUntil,
         isActivated: false,
       });
 
       // Save the new user to the database
       await newUser.save();
 
-      res.status(201).json({ email });
+      res.status(201).json({ email, validUntil: verifValidUntil });
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Internal server error" });
@@ -230,11 +232,12 @@ router.get("/user/askresetpw", async (req: Request, res: Response) => {
     );
 
     user.resetPWCode = verifCode;
-    user.resetPWValidUntil = new Date(Date.now() + 60000);
+    const resetPWValidUntil = new Date(Date.now() + 60000);
+    user.resetPWValidUntil = resetPWValidUntil;
 
     await user.save();
 
-    res.status(202).json({ email });
+    res.status(202).json({ email, validUntil: resetPWValidUntil });
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Internal server error" });

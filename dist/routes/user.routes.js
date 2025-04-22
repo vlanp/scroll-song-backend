@@ -92,6 +92,7 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
         const unselectedGenres = [];
         const verifCode = crypto.randomInt(99999999);
         await sendEmail(email, "Email verification - Scroll Song App", "Here is the code to enter in the application : \n" + verifCode);
+        const verifValidUntil = new Date(Date.now() + 60000);
         // Create a new user object with the provided, and generated data
         const newUser = new User({
             username,
@@ -103,12 +104,12 @@ router.post("/user/signup", fileUpload(), async (req, res) => {
             dislikedSongs: [],
             likedSongs: [],
             verifCode: verifCode,
-            verifValidUntil: new Date(Date.now() + 60000),
+            verifValidUntil,
             isActivated: false,
         });
         // Save the new user to the database
         await newUser.save();
-        res.status(201).json({ email });
+        res.status(201).json({ email, validUntil: verifValidUntil });
     }
     catch (error) {
         console.log(error);
@@ -165,9 +166,10 @@ router.get("/user/askresetpw", async (req, res) => {
         const verifCode = crypto.randomInt(99999999);
         await sendEmail(email, "Reset password - Scroll Song App", "Here is the code to enter in the application : \n" + verifCode);
         user.resetPWCode = verifCode;
-        user.resetPWValidUntil = new Date(Date.now() + 60000);
+        const resetPWValidUntil = new Date(Date.now() + 60000);
+        user.resetPWValidUntil = resetPWValidUntil;
         await user.save();
-        res.status(202).json({ email });
+        res.status(202).json({ email, validUntil: resetPWValidUntil });
     }
     catch (error) {
         console.log(error);
