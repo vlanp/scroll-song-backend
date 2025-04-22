@@ -47,6 +47,12 @@ router.post("/user/login", async (req, res) => {
         if (!passwordMatch) {
             return res.status(404).json({ message: "Invalid email or password" });
         }
+        if (!user.isActivated) {
+            const verifCode = crypto.randomInt(99999999);
+            await sendEmail(email, "Email verification - Scroll Song App", "Here is the code to enter in the application : \n" + verifCode);
+            const verifValidUntil = new Date(Date.now() + 60000);
+            return res.status(200).json({ email, validUntil: verifValidUntil });
+        }
         // Return a response with the user's ID and the new token
         res.status(200).json({ id: user._id, token: user.authToken });
     }
