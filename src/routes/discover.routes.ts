@@ -6,6 +6,7 @@ import isAuthenticated, {
 import { Response } from "express";
 import Song from "../models/Song.js";
 import { IDiscoverSong } from "../interfaces/IDiscoverSong.js";
+import { isValidObjectId } from "mongoose";
 
 const router = express.Router();
 
@@ -15,11 +16,6 @@ router.get(
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const user = req.user;
-      if (!user) {
-        return res
-          .status(500)
-          .json({ message: "Missing user key in the request" });
-      }
 
       const unselectedGenres = user.unselectedGenres;
       const likedSongs = user.likedSongs.map((it) => it.song);
@@ -58,13 +54,15 @@ router.post(
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const user = req.user;
-      if (!user) {
-        return res
-          .status(500)
-          .json({ message: "Missing user key in the request" });
-      }
 
       const id = req.params.id;
+
+      if (!isValidObjectId(id)) {
+        return res
+          .status(400)
+          .json({ message: "The provided id is not a valid id" });
+      }
+
       const song = await Song.findById(id);
       if (!song) {
         return res
@@ -92,13 +90,15 @@ router.post(
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const user = req.user;
-      if (!user) {
-        return res
-          .status(500)
-          .json({ message: "Missing user key in the request" });
-      }
 
       const id = req.params.id;
+
+      if (!isValidObjectId(id)) {
+        return res
+          .status(400)
+          .json({ message: "The provided id is not a valid id" });
+      }
+
       const song = await Song.findById(id);
       if (!song) {
         return res

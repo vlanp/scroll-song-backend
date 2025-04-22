@@ -2,15 +2,11 @@
 import express from "express";
 import isAuthenticated from "../middlewares/isAuthenticated.js";
 import Song from "../models/Song.js";
+import { isValidObjectId } from "mongoose";
 const router = express.Router();
 router.get("/discover", isAuthenticated, async (req, res) => {
     try {
         const user = req.user;
-        if (!user) {
-            return res
-                .status(500)
-                .json({ message: "Missing user key in the request" });
-        }
         const unselectedGenres = user.unselectedGenres;
         const likedSongs = user.likedSongs.map((it) => it.song);
         const dislikedSongs = user.dislikedSongs;
@@ -41,12 +37,12 @@ router.get("/discover", isAuthenticated, async (req, res) => {
 router.post("/discover/dislike/:id", isAuthenticated, async (req, res) => {
     try {
         const user = req.user;
-        if (!user) {
-            return res
-                .status(500)
-                .json({ message: "Missing user key in the request" });
-        }
         const id = req.params.id;
+        if (!isValidObjectId(id)) {
+            return res
+                .status(400)
+                .json({ message: "The provided id is not a valid id" });
+        }
         const song = await Song.findById(id);
         if (!song) {
             return res
@@ -66,12 +62,12 @@ router.post("/discover/dislike/:id", isAuthenticated, async (req, res) => {
 router.post("/discover/like/:id", isAuthenticated, async (req, res) => {
     try {
         const user = req.user;
-        if (!user) {
-            return res
-                .status(500)
-                .json({ message: "Missing user key in the request" });
-        }
         const id = req.params.id;
+        if (!isValidObjectId(id)) {
+            return res
+                .status(400)
+                .json({ message: "The provided id is not a valid id" });
+        }
         const song = await Song.findById(id);
         if (!song) {
             return res
