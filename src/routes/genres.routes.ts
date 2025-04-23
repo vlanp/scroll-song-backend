@@ -18,12 +18,12 @@ router.get(
 
       const genres = songs.flatMap((songs) => songs.genres).distinct();
 
-      const genresState: IGenreState[] = genres.map((genre) => ({
+      const genresStates: IGenreState[] = genres.map((genre) => ({
         genre,
         isSelected: genre! in user.unselectedGenres,
       }));
 
-      res.status(200).json(genresState);
+      res.status(200).json(genresStates);
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Internal server error" });
