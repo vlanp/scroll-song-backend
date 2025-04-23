@@ -3,6 +3,7 @@ import isAuthenticated, {
   AuthenticatedRequest,
 } from "../middlewares/isAuthenticated.js";
 import Song from "../models/Song.js";
+import IGenreState from "../interfaces/IGenreState.js";
 
 const router = express.Router();
 
@@ -12,17 +13,17 @@ router.get(
   async (req: AuthenticatedRequest, res: Response) => {
     try {
       const user = req.user;
-      if (!user) {
-        return res
-          .status(500)
-          .json({ message: "Missing user key in the request" });
-      }
 
       const songs = await Song.find();
 
       const genres = songs.flatMap((songs) => songs.genres).distinct();
 
-      res.status(200).json(genres);
+      const genresState: IGenreState[] = genres.map((genre) => ({
+        genre,
+        isSelected: genre! in user.unselectedGenres,
+      }));
+
+      res.status(200).json(genresState);
     } catch (error) {
       console.log(error);
       res.status(500).json({ message: "Internal server error" });
