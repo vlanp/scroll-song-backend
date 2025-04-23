@@ -5,14 +5,13 @@ const router = express.Router();
 router.get("/genres", isAuthenticated, async (req, res) => {
     try {
         const user = req.user;
-        if (!user) {
-            return res
-                .status(500)
-                .json({ message: "Missing user key in the request" });
-        }
         const songs = await Song.find();
         const genres = songs.flatMap((songs) => songs.genres).distinct();
-        res.status(200).json(genres);
+        const genresStates = genres.map((genre) => ({
+            genre,
+            isSelected: !(genre in user.unselectedGenres),
+        }));
+        res.status(200).json(genresStates);
     }
     catch (error) {
         console.log(error);
