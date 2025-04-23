@@ -20,7 +20,7 @@ router.get(
 
       const genresStates: IGenreState[] = genres.map((genre) => ({
         genre,
-        isSelected: genre! in user.unselectedGenres,
+        isSelected: !(genre in user.unselectedGenres),
       }));
 
       res.status(200).json(genresStates);
