@@ -9,7 +9,7 @@ router.get("/genres", isAuthenticated, async (req, res) => {
         const genres = songs.flatMap((songs) => songs.genres).distinct();
         const genresStates = genres.map((genre) => ({
             genre,
-            isSelected: !(genre in user.unselectedGenres),
+            isSelected: !user.unselectedGenres.includes(genre),
         }));
         res.status(200).json(genresStates);
     }
