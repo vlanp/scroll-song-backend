@@ -265,18 +265,28 @@ router.get("/user/mailcheck", async (req: Request, res: Response) => {
 
 router.get("/user/askresetpw", async (req: Request, res: Response) => {
   try {
-    const email = req.query.email;
+    const token = req.headers.authorization?.replace("Bearer ", "");
 
-    if (!email || typeof email !== "string") {
-      return res.status(400).json({ message: "Email is missing" });
-    }
+    let user = await User.findOne({ authToken: token });
 
-    const user = await User.findOne({ email: email });
+    let email: string;
 
-    if (!user) {
-      return res
-        .status(404)
-        .json({ message: "No User found with the provided email" });
+    if (user) {
+      email = user.email;
+    } else {
+      const email = req.query.email;
+
+      if (!email || typeof email !== "string") {
+        return res.status(400).json({ message: "Email is missing" });
+      }
+
+      user = await User.findOne({ email: email });
+
+      if (!user) {
+        return res
+          .status(404)
+          .json({ message: "No User found with the provided email" });
+      }
     }
 
     const verifCode = crypto.randomInt(99999999);

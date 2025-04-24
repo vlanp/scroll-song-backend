@@ -187,15 +187,23 @@ router.get("/user/mailcheck", async (req, res) => {
 });
 router.get("/user/askresetpw", async (req, res) => {
     try {
-        const email = req.query.email;
-        if (!email || typeof email !== "string") {
-            return res.status(400).json({ message: "Email is missing" });
+        const token = req.headers.authorization?.replace("Bearer ", "");
+        let user = await User.findOne({ authToken: token });
+        let email;
+        if (user) {
+            email = user.email;
         }
-        const user = await User.findOne({ email: email });
-        if (!user) {
-            return res
-                .status(404)
-                .json({ message: "No User found with the provided email" });
+        else {
+            const email = req.query.email;
+            if (!email || typeof email !== "string") {
+                return res.status(400).json({ message: "Email is missing" });
+            }
+            user = await User.findOne({ email: email });
+            if (!user) {
+                return res
+                    .status(404)
+                    .json({ message: "No User found with the provided email" });
+            }
         }
         const verifCode = crypto.randomInt(99999999);
         await sendEmail(email, "Reset password - Scroll Song App", "Here is the code to enter in the application : \n" + verifCode);
