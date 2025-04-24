@@ -17,6 +17,7 @@ export interface IUser {
   isActivated: boolean;
   resetPWCode?: number;
   resetPWValidUntil?: Date;
+  resetPWUntil?: Date;
 }
 
 const userSchema = new mongoose.Schema<IUser>({
@@ -81,6 +82,10 @@ const userSchema = new mongoose.Schema<IUser>({
     required: false,
   },
   resetPWValidUntil: {
+    type: Date,
+    required: false,
+  },
+  resetPWUntil: {
     type: Date,
     required: false,
   },

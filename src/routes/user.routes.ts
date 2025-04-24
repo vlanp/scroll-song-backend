@@ -343,6 +343,8 @@ router.get("/user/resetpw/:verifCode", async (req: Request, res: Response) => {
 
     user.isActivated = true;
 
+    user.resetPWUntil = new Date(Date.now() + 300000);
+
     await user.save();
 
     res.status(202).json({ id: user._id, token: user.authToken, email });
@@ -357,6 +359,15 @@ router.put(
   isAuthenticated,
   async (req: AuthenticatedRequest, res: Response) => {
     try {
+      const user = req.user;
+
+      if (user.resetPWUntil < new Date()) {
+        return res.status(403).json({
+          message:
+            "The delay to change the password has been exceeded. Please ask a new code.",
+        });
+      }
+
       const newPassword = req.body.newPassword;
 
       if (!newPassword) {
@@ -372,8 +383,6 @@ router.put(
 
       // Generate a new authentication token
       const authToken = uuidv4();
-
-      const user = req.user;
 
       user.password = hashedPassword;
       user.authToken = authToken;

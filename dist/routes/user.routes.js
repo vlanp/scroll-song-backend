@@ -242,6 +242,7 @@ router.get("/user/resetpw/:verifCode", async (req, res) => {
             });
         }
         user.isActivated = true;
+        user.resetPWUntil = new Date(Date.now() + 300000);
         await user.save();
         res.status(202).json({ id: user._id, token: user.authToken, email });
     }
@@ -252,6 +253,12 @@ router.get("/user/resetpw/:verifCode", async (req, res) => {
 });
 router.put("/user/resetpw", isAuthenticated, async (req, res) => {
     try {
+        const user = req.user;
+        if (user.resetPWUntil < new Date()) {
+            return res.status(403).json({
+                message: "The delay to change the password has been exceeded. Please ask a new code.",
+            });
+        }
         const newPassword = req.body.newPassword;
         if (!newPassword) {
             res.status(400).json({ message: "newPassword is missing" });
@@ -263,7 +270,6 @@ router.put("/user/resetpw", isAuthenticated, async (req, res) => {
         const hashedPassword = await bcrypt.hash(newPassword, 10);
         // Generate a new authentication token
         const authToken = uuidv4();
-        const user = req.user;
         user.password = hashedPassword;
         user.authToken = authToken;
         await user.save();

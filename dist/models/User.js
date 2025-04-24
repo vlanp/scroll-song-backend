@@ -61,5 +61,9 @@ const userSchema = new mongoose.Schema({
         type: Date,
         required: false,
     },
+    resetPWUntil: {
+        type: Date,
+        required: false,
+    },
 });
 export default mongoose.model("User", userSchema);
