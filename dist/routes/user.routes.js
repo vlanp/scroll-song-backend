@@ -286,10 +286,6 @@ router.put("/user/updateGenres", isAuthenticated, async (req, res) => {
                 .status(400)
                 .json({ message: "Unselected genres must be an array of string" });
         }
-        // If no user is found, return a 400 status with an error message
-        if (!user) {
-            return res.status(400).json({ message: "User not found" });
-        }
         // Update the user's genres
         user.unselectedGenres = unselectedGenres;
         // Save the updated user
