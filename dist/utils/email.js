@@ -9,21 +9,21 @@ const zohoTransporter = nodemailer.createTransport({
     },
 });
 const mailersendTransporter = nodemailer.createTransport({
-    host: process.env.EMAIL_HOST_SENDMAILER,
+    host: process.env.EMAIL_HOST_MAILERSEND,
     secure: true,
-    port: parseInt(process.env.EMAIL_PORT_SENDMAILER),
+    port: parseInt(process.env.EMAIL_PORT_MAILERSEND),
     auth: {
-        user: process.env.EMAIL_ADDRESS_SENDMAILER,
-        pass: process.env.EMAIL_PASSWORD_SENDMAILER,
+        user: process.env.EMAIL_ADDRESS_MAILERSEND,
+        pass: process.env.EMAIL_PASSWORD_MAILERSEND,
     },
 });
-const sendEmail = async (recipient, subject, text, transporterName = "SENDMAILER") => {
+const sendEmail = async (recipient, subject, text, transporterName = "MAILERSEND") => {
     const mailOptions = {
         from: process.env.EMAIL_ADDRESS,
         to: recipient,
         subject: subject,
         text: text,
     };
-    return (transporterName === "SENDMAILER" ? mailersendTransporter : zohoTransporter).sendMail(mailOptions);
+    return (transporterName === "MAILERSEND" ? mailersendTransporter : zohoTransporter).sendMail(mailOptions);
 };
 export { sendEmail };
