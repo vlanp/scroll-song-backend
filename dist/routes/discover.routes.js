@@ -49,8 +49,7 @@ router.post("/discover/dislike/:id", isAuthenticated, async (req, res) => {
                 .status(404)
                 .json({ message: "No song was found with this id" });
         }
-        const _id = song._id;
-        user.dislikedSongs.push(_id);
+        user.dislikedSongs.push(song);
         await user.save();
         res.status(201).json({ message: "Song added to disliked songs" });
     }
@@ -74,8 +73,7 @@ router.post("/discover/like/:id", isAuthenticated, async (req, res) => {
                 .status(404)
                 .json({ message: "No song was found with this id" });
         }
-        const _id = song._id;
-        user.likedSongs.push({ createdAt: new Date(), song: _id });
+        user.likedSongs.push({ createdAt: new Date(), song });
         await user.save();
         res.status(201).json({ message: "Song added to liked songs" });
     }

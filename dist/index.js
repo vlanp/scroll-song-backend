@@ -7,6 +7,7 @@ import adminSongRouter from "./routes/admin_routes/song.routes.js";
 import discoverRouter from "./routes/discover.routes.js";
 import genresRouter from "./routes/genres.routes.js";
 import userRouter from "./routes/user.routes.js";
+import favoritesRouter from "./routes/favorites.route.js";
 import "./utils/array.js";
 dotenv.config();
 const app = express();
@@ -22,6 +23,7 @@ app.use(userRouter);
 app.use(discoverRouter);
 app.use(genresRouter);
 app.use(adminSongRouter);
+app.use(favoritesRouter);
 app.all("*", (_req, res) => {
     res.status(404).json({ message: "Route not found" });
 });

@@ -70,9 +70,7 @@ router.post(
           .json({ message: "No song was found with this id" });
       }
 
-      const _id = song._id;
-
-      user.dislikedSongs.push(_id);
+      user.dislikedSongs.push(song);
 
       await user.save();
 
@@ -106,9 +104,7 @@ router.post(
           .json({ message: "No song was found with this id" });
       }
 
-      const _id = song._id;
-
-      user.likedSongs.push({ createdAt: new Date(), song: _id });
+      user.likedSongs.push({ createdAt: new Date(), song });
 
       await user.save();
 
