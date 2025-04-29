@@ -274,10 +274,10 @@ router.get("/user/askresetpw", async (req: Request, res: Response) => {
     if (user) {
       email = user.email;
     } else {
-      const email = req.query.email;
-
-      if (!email || typeof email !== "string") {
+      if (!req.query.email || typeof req.query.email !== "string") {
         return res.status(400).json({ message: "Email is missing" });
+      } else {
+        email = req.query.email;
       }
 
       user = await User.findOne({ email: email });

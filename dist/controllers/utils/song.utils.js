@@ -32,7 +32,7 @@ export const saveSongUtils = async (audio, picture, sourceUrl) => {
         genres: genres,
         title: title,
         bytes: uploads[0].bytes,
-        durationMs: uploads[0].duration,
+        durationMs: uploads[0].duration * 1000,
     });
     await newSong.save();
     return true;
