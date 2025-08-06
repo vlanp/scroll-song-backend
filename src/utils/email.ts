@@ -10,25 +10,14 @@ const zohoTransporter = nodemailer.createTransport({
   },
 });
 
-const mailersendTransporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST_MAILERSEND,
+const resendTransporter = nodemailer.createTransport({
+  host: process.env.EMAIL_HOST_RESEND,
   secure: false, // Setting secure to false does not mean that you would not use an encrypted connection. Most SMTP servers allow connection upgrade via the STARTTLS command, but to use this, you have to connect using plaintext first. => from https://nodemailer.com/smtp/
-  port: parseInt(process.env.EMAIL_PORT_MAILERSEND),
-  from: process.env.EMAIL_ADDRESS_MAILERSEND,
+  port: parseInt(process.env.EMAIL_PORT_RESEND),
+  from: process.env.EMAIL_ADDRESS_RESEND,
   auth: {
-    user: process.env.EMAIL_USERNAME_MAILERSEND,
-    pass: process.env.EMAIL_PASSWORD_MAILERSEND,
-  },
-});
-
-const mailgunTransporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST_MAILGUN,
-  secure: false, // Setting secure to false does not mean that you would not use an encrypted connection. Most SMTP servers allow connection upgrade via the STARTTLS command, but to use this, you have to connect using plaintext first. => from https://nodemailer.com/smtp/
-  port: parseInt(process.env.EMAIL_PORT_MAILGUN),
-  from: process.env.EMAIL_ADDRESS_MAILGUN,
-  auth: {
-    user: process.env.EMAIL_USERNAME_MAILGUN,
-    pass: process.env.EMAIL_PASSWORD_MAILGUN,
+    user: process.env.EMAIL_USERNAME_RESEND,
+    pass: process.env.EMAIL_PASSWORD_RESEND,
   },
 });
 
@@ -36,14 +25,12 @@ const sendEmail = async (
   recipient: string,
   subject: string,
   text: string,
-  transporterName: "ZOHO" | "MAILERSEND" | "MAILGUN" = "MAILGUN"
+  transporterName: "ZOHO" | "RESEND" = "RESEND"
 ) => {
   const mailOptions = {
     from:
-      transporterName === "MAILGUN"
-        ? process.env.EMAIL_ADDRESS_MAILGUN
-        : transporterName === "MAILERSEND"
-        ? process.env.EMAIL_ADDRESS_MAILERSEND
+      transporterName === "RESEND"
+        ? process.env.EMAIL_ADDRESS_RESEND
         : process.env.EMAIL_ADDRESS_ZOHO,
     to: recipient,
     subject: subject,
@@ -51,11 +38,7 @@ const sendEmail = async (
   };
 
   return (
-    transporterName === "MAILGUN"
-      ? mailgunTransporter
-      : transporterName === "MAILERSEND"
-      ? mailersendTransporter
-      : zohoTransporter
+    transporterName === "RESEND" ? resendTransporter : zohoTransporter
   ).sendMail(mailOptions);
 };
 
