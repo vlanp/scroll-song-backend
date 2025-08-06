@@ -12,9 +12,8 @@ const zohoTransporter = nodemailer.createTransport({
 
 const resendTransporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST_RESEND,
-  secure: false, // Setting secure to false does not mean that you would not use an encrypted connection. Most SMTP servers allow connection upgrade via the STARTTLS command, but to use this, you have to connect using plaintext first. => from https://nodemailer.com/smtp/
+  secure: true, // Setting secure to false does not mean that you would not use an encrypted connection. Most SMTP servers allow connection upgrade via the STARTTLS command, but to use this, you have to connect using plaintext first. => from https://nodemailer.com/smtp/
   port: parseInt(process.env.EMAIL_PORT_RESEND),
-  from: process.env.EMAIL_ADDRESS_RESEND,
   auth: {
     user: process.env.EMAIL_USERNAME_RESEND,
     pass: process.env.EMAIL_PASSWORD_RESEND,
