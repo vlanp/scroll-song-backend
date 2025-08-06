@@ -1,17 +1,5 @@
 import nodemailer from "nodemailer";
 
-console.log("=== DEBUG VARIABLES ENVIRONNEMENT ===");
-console.log("EMAIL_HOST_ZOHO:", process.env.EMAIL_HOST_ZOHO);
-console.log("EMAIL_PORT_ZOHO:", process.env.EMAIL_PORT_ZOHO);
-console.log("EMAIL_HOST_RESEND:", process.env.EMAIL_HOST_RESEND);
-console.log("EMAIL_PORT_RESEND:", process.env.EMAIL_PORT_RESEND);
-console.log("Parsed ZOHO port:", parseInt(process.env.EMAIL_PORT_ZOHO || "0"));
-console.log(
-  "Parsed RESEND port:",
-  parseInt(process.env.EMAIL_PORT_RESEND || "0")
-);
-console.log("=====================================");
-
 const zohoTransporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST_ZOHO,
   secure: true,
