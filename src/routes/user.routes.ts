@@ -61,7 +61,7 @@ router.post("/user/login", async (req: Request, res: Response) => {
     }
 
     if (!user.isActivated) {
-      const verifCode = crypto.randomInt(99999999);
+      const verifCode = crypto.randomInt(10_000_000, 99_999_999);
 
       await sendEmail(
         email,
@@ -141,7 +141,7 @@ router.post(
 
       const unselectedGenres: string[] = [];
 
-      const verifCode = crypto.randomInt(99999999);
+      const verifCode = crypto.randomInt(10_000_000, 99_999_999);
 
       await sendEmail(
         email,
@@ -242,7 +242,7 @@ router.get("/user/mailcheck", async (req: Request, res: Response) => {
         .json({ message: "No User found with the provided email" });
     }
 
-    const verifCode = crypto.randomInt(99999999);
+    const verifCode = crypto.randomInt(10_000_000, 99_999_999);
 
     await sendEmail(
       email,
@@ -289,7 +289,7 @@ router.get("/user/askresetpw", async (req: Request, res: Response) => {
       }
     }
 
-    const verifCode = crypto.randomInt(99999999);
+    const verifCode = crypto.randomInt(10_000_000, 99_999_999);
 
     await sendEmail(
       email,
