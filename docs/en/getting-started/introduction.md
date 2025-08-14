@@ -9,6 +9,6 @@ REST API developed with Node.js and Express, based on a MongoDB database, which 
 
 The API is deployed on [Northflank](https://app.northflank.com/) and is accessible [here](https://site--scroll-song-backend--x7c7hl9cnzx6.code.run).
 
-The description of the API routes is available [here](https://documenter.getpostman.com/view/34963907/2sB3BDJAWz).
+The description of the API routes is available [here](https://documenter.getpostman.com/view/34963907/2sB3BGHV5i).
 
 <iframe width="560" height="315" src="https://www.youtube.com/embed/uLNSotoSTEI?si=GT5kajT9c3Xn6Dfe" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
